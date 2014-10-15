@@ -31,35 +31,37 @@
       document.getElementById('lightbox').style.display='inline';
     }
 
+    // add handlers to each image thumbnail, set the div width and height properly after the images load
+    function addImageThumbnail(item){
+      var div = document.createElement('div')
+      div.className = "item"
+      var image = document.createElement('img')
+      image.src = item.thumbnail
+      image.onload = function(event){ 
+        event.path[1].style.width = event.path[0].width + 10 + 'px'
+        event.path[1].style.height = event.path[0].height + 'px'
+      }
+      image.onerror = function(){
+        event.path[2].removeChild(event.path[1])
+      }
+      div.appendChild(image)
+      holder.appendChild(div)
+      image.onclick = function(){ imageClickHandler(item.url) }
+    }
+
     function loadMoreImages(page){
       ajaxRequest("http://api.getchute.com/v2/albums/aus6kwrg/assets?per_page=25&tags=surf&page=" + page, function(response){
         var json = JSON.parse(response.responseText)
         var holder = document.querySelector('#holder')
-        // add handlers to each image thumbnail, set the size properly after the images load
-        json.data.forEach(function(item){
-          var div = document.createElement('div')
-          div.className = "item"
-          var image = document.createElement('img')
-          image.src = item.thumbnail
-          image.onload = function(event){ 
-            event.path[1].style.width = event.path[0].width + 10 + 'px'
-            event.path[1].style.height = event.path[0].height + 'px'
-          }
-          image.onerror = function(){
-            event.path[2].removeChild(event.path[1])
-          }
-          div.appendChild(image)
-          holder.appendChild(div)
-          image.onclick = function(){ imageClickHandler(item.url) }
-        })
+        json.data.forEach(function(item){ addImageThumbnail(item)})
         imagesLoaded( document.querySelector('#holder'), function( instance ) {
-            var container = document.querySelector('#holder');
-            var msnry = new Masonry( container, {
-              columnWidth: 52,
-              "gutter": 10,
-              itemSelector: '.item'
-            });
-        });
+          var container = document.querySelector('#holder')
+          var msnry = new Masonry( container, {
+            columnWidth: 52,
+            "gutter": 10,
+            itemSelector: '.item'
+          })
+        })
       })
     }
 
