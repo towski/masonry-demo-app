@@ -14,3 +14,5 @@ imageClickHandler handles popping up the lightbox.
 A bunch of utility functions is in javascripts/utils
 
 This has only been tested in Chrome 38, but if I get more time I might check Firefox/IE.
+
+Also I didn't use jQuery because it seems like overkill, and just relied on a few simple utility functions
