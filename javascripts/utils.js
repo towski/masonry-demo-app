@@ -70,3 +70,36 @@ function prevent_unload(){
   window.onbeforeunload = function() {  return false }
 }
 
+function windowSize(){
+    var w = window,
+        d = document,
+        e = d.documentElement,
+        g = d.getElementsByTagName('body')[0],
+        x = w.innerWidth || e.clientWidth || g.clientWidth,
+        y = w.innerHeight|| e.clientHeight|| g.clientHeight;
+    return [x, y]
+}
+
+function biggerThanBrowser(imageX, imageY){
+  return biggerThanBrowserX() || biggerThanBrowserY()
+}
+
+function biggerThanBrowserX(imageX){
+  var size = windowSize()
+  var x = size[0]
+  if(imageX > x){
+    return true
+  } else {
+    return false
+  }
+}
+
+function biggerThanBrowserY(imageY){
+  var size = windowSize()
+  var y = size[1]
+  if(imageY > y){
+    return true
+  } else {
+    return false
+  }
+}
