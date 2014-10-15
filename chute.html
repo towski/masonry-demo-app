@@ -109,7 +109,7 @@
 <button style='width:100px; margin:auto' data-bind='click: registerClick'>Load more</button>
 </center>
 <script>
-var ClickCounterViewModel = function() {
+var LoadMoreViewModel = function() {
     this.numberOfClicks = ko.observable(0);
  
     this.registerClick = function() {
@@ -118,7 +118,7 @@ var ClickCounterViewModel = function() {
     };
 };
  
-ko.applyBindings(new ClickCounterViewModel());
+ko.applyBindings(new LoadMoreViewModel());
 loadMoreImages(1)
 </script>
 
