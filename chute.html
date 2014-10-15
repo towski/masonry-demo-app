@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Chute challenge</title>
+  <script src='http://knockoutjs.com/downloads/knockout-3.2.0.js'></script>
+  <script src="http://masonry.desandro.com/masonry.pkgd.js"></script>
+  <script src="http://imagesloaded.desandro.com/imagesloaded.pkgd.min.js"></script>
+  <script src="/javascripts/utils.js"></script>
+  <script>
+    function windowSize(){
+        var w = window,
+            d = document,
+            e = d.documentElement,
+            g = d.getElementsByTagName('body')[0],
+            x = w.innerWidth || e.clientWidth || g.clientWidth,
+            y = w.innerHeight|| e.clientHeight|| g.clientHeight;
+        return [x, y]
+    }
+
+    function biggerThanBrowser(imageX, imageY){
+      return biggerThanBrowserX() || biggerThanBrowserY()
+    }
+
+    function biggerThanBrowserX(imageX){
+      var size = windowSize()
+      var x = size[0]
+      if(imageX > x){
+        return true
+      } else {
+        return false
+      }
+    }
+
+    function biggerThanBrowserY(imageY){
+      var size = windowSize()
+      var y = size[1]
+      if(imageY > y){
+        return true
+      } else {
+        return false
+      }
+    }
+
+    function imageClickHandler(item_url){
+      window.getSelection().removeAllRanges()
+      var lightbox_image = document.getElementById('lightbox_image')
+      lightbox_image.src = item_url
+      lightbox_image.onload = function(event){ 
+        var lightbox_content = document.getElementById('lightbox_content')
+        var image = event.path[0]
+        image.style.width = null
+        image.style.height = null
+        if(biggerThanBrowser(image.width, image.height)){
+          lightbox_content.style.width = '100%'
+          lightbox_content.style.height = '100%'
+          var size = windowSize();
+          image.style.width = size[0] + 'px'
+          image.style.height = size[1] + 'px'
+        } else {
+          lightbox_content.style.width = image.width + 'px';
+          lightbox_content.style.height = image.height + 'px';
+        }
+      }
+      document.getElementById('lightbox').style.display='inline';
+    }
+
+    function loadMoreImages(page){
+      ajaxRequest("http://api.getchute.com/v2/albums/aus6kwrg/assets?per_page=25&tags=surf&page=" + page, function(response){
+        var json = JSON.parse(response.responseText)
+        var holder = document.querySelector('#holder')
+        // add handlers to each image thumbnail, set the size properly after the images load
+        json.data.forEach(function(item){
+          var div = document.createElement('div')
+          div.className = "item"
+          var image = document.createElement('img')
+          image.src = item.thumbnail
+          image.onload = function(event){ 
+            event.path[1].style.width = event.path[0].width + 10 + 'px'
+            event.path[1].style.height = event.path[0].height + 'px'
+          }
+          image.onerror = function(){
+            event.path[2].removeChild(event.path[1])
+          }
+          div.appendChild(image)
+          holder.appendChild(div)
+          image.onclick = function(){ imageClickHandler(item.url) }
+        })
+        imagesLoaded( document.querySelector('#holder'), function( instance ) {
+            var container = document.querySelector('#holder');
+            var msnry = new Masonry( container, {
+              columnWidth: 52,
+              "gutter": 10,
+              itemSelector: '.item'
+            });
+        });
+      })
+    }
+
+  </script>
+  <style>
+    #holder {
+      margin:auto;
+      margin-left:100px;
+      margin-right:100px;
+    }
+    .lightbox {
+      position:fixed;
+      top:0;
+      left:0;
+      width:100%;
+      height:100%;
+      background:rgba(0, 0, 0, .8);
+    }
+    .lightbox_table {
+      width:100%;
+      height:100%;
+    }
+    .lightbox_table_cell {
+      vertical-align:middle;
+    }
+
+    #holder .item {
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+<div id='holder'>
+</div>
+<div id="lightbox" class="lightbox" style="display:none" onclick="document.getElementById('lightbox').style.display='none';">
+  <table class="lightbox_table">
+    <tr>
+    <td class="lightbox_table_cell" align="center">
+      <div id="lightbox_content" style= "width:200px; height:200px; background-color:white; border:5px solid black;">
+        <img id='lightbox_image'/>
+      </div>
+    </td>
+    </tr>
+  </table>
+</div>
+<center>
+<button style='width:100px; margin:auto' data-bind='click: registerClick'>Load more</button>
+</center>
+<script>
+var ClickCounterViewModel = function() {
+    this.numberOfClicks = ko.observable(0);
+ 
+    this.registerClick = function() {
+      this.numberOfClicks(this.numberOfClicks() + 1);
+      loadMoreImages(this.numberOfClicks() + 2)
+    };
+};
+ 
+ko.applyBindings(new ClickCounterViewModel());
+loadMoreImages(1)
+</script>
+
+</body>
+</html>
